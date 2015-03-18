@@ -24,7 +24,7 @@ data <- read.csv("task_usage-part-00001-of-00500.csv", header=TRUE)
 print("Data Cleaning up process......")
 Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389)
 
-Data1 <- Data[1:1000,]
+Data1 <- Data[1:5000,]
 ## plotting cpu rate and memory usage
 #pdf("graph/CPUusage_memory.pdf",bg="white")
 png("graph/CPUusage_memory.png")
@@ -38,6 +38,49 @@ axis(1, at=x, labels=x)
 dev.off()
 #################################################################################################
 #################################################################################################
+# Determine number of clusters
+library(fpc)
+wss <- (nrow(Data1)-1)*sum(apply(Data1,2,var))
+for (i in 2:15) wss[i] <- sum(kmeans(Data1, 
+                                     centers=i)$withinss)
+plot(1:15, wss, type="b", xlab="Number of Clusters",
+     ylab="Within groups sum of squares")
+
+
+# K-Means Cluster Analysis
+fit <- kmeans(Data1, 6) # 6 cluster solution
+# get cluster means 
+aggregate(Data1,by=list(fit$cluster),FUN=mean)
+# append cluster assignment
+mydata <- data.frame(Data1, fit$cluster)
+
+# vary parameters for most readable graph
+png("graph/CLUSPLOT.png")
+library(cluster) 
+clusplot(mydata, fit$cluster, color=TRUE, shade=TRUE, 
+         labels=2, lines=0)
+dev.off()
+
+require(vegan)
+fit <- cascadeKM(scale(mydata, center = TRUE,  scale = TRUE), 1, 10, iter = 1000)
+plot(fit, sortg = TRUE, grpmts.plot = TRUE)
+calinski.best <- as.numeric(which.max(fit$results[2,]))
+cat("Calinski criterion optimal number of clusters:", calinski.best, "\n")
+# 5 clusters!
+
+# Centroid Plot against 1st 2 discriminant functions
+png("graph/2df.png")
+library(fpc)
+plotcluster(mydata, fit$cluster)
+dev.off()
+
+# comparing 2 cluster solutions
+library(fpc)
+cluster.stats(d, fit1$cluster, fit2$cluster)
+
+
+
+
 
 ## Log transformed
 signedlog10 = function(x) {
