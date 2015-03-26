@@ -11,7 +11,7 @@
 ## 
 #################################################################################################
 #################################################################################################
-
+library(gmm)
 ### setting path of repo folder.
 getwd()
 setwd("/Users/bikash/repos/google/data/")
@@ -24,7 +24,7 @@ data <- read.csv("task_usage-part-00001-of-00500.csv", header=TRUE)
 print("Data Cleaning up process......")
 Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389)
 
-Data1 <- Data[1:5000,]
+Data1 <- Data[1:10000,]
 ## plotting cpu rate and memory usage
 #pdf("graph/CPUusage_memory.pdf",bg="white")
 png("graph/CPUusage_memory.png")
@@ -38,6 +38,46 @@ axis(1, at=x, labels=x)
 dev.off()
 #################################################################################################
 #################################################################################################
+
+### CPU usage density function
+plot(hist(Data1$cpurate,breaks=101),col="grey",border="grey",freq=FALSE,
+     xlab="CPU usage",main="")
+lines(density(Data1$cpurate),lty=2)
+
+### Memmory usage density function
+plot(hist(Data1$memory_usage,breaks=101),col="grey",border="grey",freq=FALSE,
+     xlab="Memory usage",main="")
+lines(density(Data1$memory_usage),lty=2)
+
+### PRincipal component Analysis
+## Log transformation
+data.log <- log(Data1)
+# apply PCA - scale. = TRUE is highly 
+# advisable, but default is FALSE. 
+ir.pca <- prcomp(log.ir,
+                 center = TRUE,
+                 scale. = TRUE) 
+
+
+### Gaussian Mixture Model (GMM)
+# Two-component Gaussian mixture
+library(mixtools)
+fit.k2 <- normalmixEM(Data1$cpurate,k=2,maxit=100,epsilon=0.01)
+
+plot(fit.k2,which=2)
+lines(density(Data1$cpurate), lty=2, lwd=2, xlab="CPU usage")
+
+
+
+# Two-component Gaussian mixture
+library(mixtools)
+fit.k1 <- normalmixEM(Data1$memory_usage,k=2,maxit=100,epsilon=0.01)
+
+plot(fit.k1,which=2)
+lines(density(Data1$memory_usage), lty=2, lwd=2, xlab="Memory usage")
+
+
+
 # Determine number of clusters
 library(fpc)
 wss <- (nrow(Data1)-1)*sum(apply(Data1,2,var))
