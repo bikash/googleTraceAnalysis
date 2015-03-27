@@ -55,7 +55,7 @@ data <- read.csv("task_usage-part-00001-of-00500.csv", header=TRUE)
 
 ## Pre-processing of data
 print("Data Cleaning up process......")
-Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389)
+Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389 , page_cache=data$X0.006645 , diskio_time=data$X7.629e.05 , cycle_inst=data$X2.911)
 
 Data1 <- Data[1:10000,]
 ## plotting cpu rate and memory usage
@@ -108,8 +108,8 @@ library("car")
 scatterplotMatrix(Data1)
 
 library(RColorBrewer)
-names <- c("V1","V2")
-mylist <- list(Data1$cpurate,Data1$memory_usage)
+names <- c("V1","V2","V3","V4","V5")
+mylist <- list(Data1$cpurate,Data1$memory_usage,Data1$page_cache,Data1$diskio_time,Data$cycle_inst)
 makeProfilePlot(mylist,names)
 
 
