@@ -44,6 +44,7 @@ makeProfilePlot <- function(mylist,names)
     lastyval <- vectori[length(vectori)]
     text((lastxval-10),(lastyval),namei,col="black",cex=0.6)
   }
+  legend ("topleft", legend =names, cex=0.8, col=colours,lwd=c(1,1,1,1), lty=c(1,1,1,1))
 }
 ### setting path of repo folder.
 getwd()
@@ -87,7 +88,7 @@ lines(density(Data1$memory_usage),lty=2)
 data.log <- log(Data1)
 # apply PCA - scale. = TRUE is highly 
 # advisable, but default is FALSE. 
-fit <- prcomp(data.log,
+fit <- prcomp(Data1[,1:4],
                  center = TRUE,
                  scale. = TRUE) 
 print(fit)
@@ -108,8 +109,8 @@ library("car")
 scatterplotMatrix(Data1)
 
 library(RColorBrewer)
-names <- c("V1","V2","V3","V4","V5")
-mylist <- list(Data1$cpurate,Data1$memory_usage,Data1$page_cache,Data1$diskio_time,Data$cycle_inst)
+names <- c("CPU rate","Memory usage","Page Cache","Disk I/O time")
+mylist <- list(Data1$cpurate,Data1$memory_usage,Data1$page_cache,Data1$diskio_time)
 makeProfilePlot(mylist,names)
 
 
