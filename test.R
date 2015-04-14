@@ -93,6 +93,11 @@ fit <- prcomp(Data1[,1:4],
                  scale. = TRUE) 
 print(fit)
 summary(fit)
+# sqrt of eigenvalues
+fit$sdev
+
+plot(fit, type = "l")
+
 library(devtools)
 install_github("ggbiplot", "vqv")
 
