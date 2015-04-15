@@ -63,13 +63,52 @@ plot(comp, pch=16, col=rgb(0,0,0,0.5))
 library(rgl)
 plot3d(comp$PC1, comp$PC2, comp$PC3)
 
+# Determine number of clusters
+wss <- (nrow(data1)-1)*sum(apply(data1,2,var))
+for (i in 2:15) wss[i] <- sum(kmeans(data1,
+                                     centers=i)$withinss)
+plot(1:15, wss, type="b", xlab="Number of Clusters",
+     ylab="Within groups sum of squares")
 
+# From scree plot elbow occurs at k = 4
+# Apply k-means with k=4
+k <- kmeans(comp, 4, nstart=25, iter.max=1000)
+library(RColorBrewer)
+library(scales)
+palette(alpha(brewer.pal(9,'Set1'), 0.5))
+plot(comp, col=k$clust, pch=16)
 #Do the PCA on your dataframe 
 exp.data.selected.pca=prcomp(t(data1))
 
+# 3D plot
+plot3d(comp$PC1, comp$PC2, comp$PC3, col=k$clust)
+plot3d(comp$PC1, comp$PC3, comp$PC4, col=k$clust)
+
+# Cluster sizes
+sort(table(k$clust))
+clust <- names(sort(table(k$clust)))
+
+# First cluster
+row.names(data[k$clust==clust[1],])
+# Second Cluster
+row.names(data[k$clust==clust[2],])
+# Third Cluster
+row.names(data[k$clust==clust[3],])
+# Fourth Cluster
+row.names(data[k$clust==clust[4],])
+
+
+
+## # plot for PCA
 library(rgl)
 #Extract the first three principal components. This is what you will plot.
 plotme=cbind(data1$x[,1:3])
+#assigning colors for each sample in the dataframe.
+mat=colors()[36]
+zyg=colors()[81]
+sc=colors()[132]
+cze=colors()[76]
+cols=c(zyg, mat, cze,sc)
 
 #This is the code to draw the 3d plot. Once executed, the plot in the X11 window can be rotated by clicking and draging with your mouse.
 plot3d(plotme,col=cols,type="s",size=1.5,xlim=c(-2,2),ylim=c(-2,2),zlim=c(-2,2),box=FALSE)
@@ -79,5 +118,3 @@ for(i in row.names(plotme)){
 
 #This removes the default bounding box so it can be replaced with something more aesthetically pleasing
 rgl.clear(type="bbox")
-
-
