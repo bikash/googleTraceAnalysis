@@ -32,7 +32,7 @@ Data1 <- Data[1:10000,]
 data1 <- data.frame(cpurate=Data1$cpurate, memory_usage=Data1$memory_usage, page_cache = Data1$page_cache, diskio_time=Data1$diskio_time)
 
 ## plotting cpu rate and memory usage
-pc <- princomp(data1, cor = TRUE, na.action=na.exclude)
+pc <- princomp(data, cor = TRUE, na.action=na.exclude)
 plot(pc)
 
 # First component dominates greatly. What are the loadings?
