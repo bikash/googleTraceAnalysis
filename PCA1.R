@@ -118,14 +118,14 @@ pve  <-  pr.var / sum ( pr.var )
 pve
 
 library(base)
-cumSum ( PVE ) *  100  # see the cumulative percentage of each major component.
+cumsum ( pve ) *  100  # see the cumulative percentage of each major component.
 
 ## You can see that with the election of the first two components 64.4½ explains the variation in the data and 
 ## If I select the first 3 components, increased to 76.8%
 
 # Represent the opinion of the elbow:
 plot ( pve ,   xlab = " Major Component " , ylab = " Proportion of Variance Explained " , type  =  ' b ' )
-plot (cumSum ( PVE ), xlab = " Major Component " , ylab = " Proportion of Variance Explained Acumulatica " , ylim = c ( 0 , 1 ), type = ' b ' )
+plot (cumsum ( pve ), xlab = " Major Component " , ylab = " Proportion of Variance Explained Acumulatica " , ylim = c ( 0 , 1 ), type = ' b ' )
 
 
 ## After observing the resulting graph, we see that clearly would explain choosing the first 2 components
