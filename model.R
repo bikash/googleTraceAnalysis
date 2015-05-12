@@ -28,7 +28,8 @@ lines(y, pch=19, col="red")
 ##
 periodicity_options <- c('second', 'minute', 'hour', 'day', 'week', 'month', 'year')
 date <- as.POSIXct(Data1$start_date, origin="1970-01-01")
-dates <- round_date(date, 'hour')
+date <-  as.POSIXct(c(946684801:946714800), origin="1970-01-01")
+dates <- round_date(date, 'second')
 input_agg <- aggregate(Data1$cpurate ~ dates, FUN=sum)
 # Invoke AnomalyDetectionTs
 library(AnomalyDetection)
