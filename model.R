@@ -1,10 +1,10 @@
 
 ### setting path of repo folder.
-getwd()
 setwd("/Users/bikash/repos/google/data/")
 
 source("/Users/bikash/repos/googleTraceAnalysis/tsmeasures.R")
 source("/Users/bikash/repos/googleTraceAnalysis/anomay.R")
+source("/Users/bikash/repos/googleTraceAnalysis/figfunc.R")
 ## reading data from csv file.
 data <- read.csv("task_usage-part-00001-of-00500.csv", header=TRUE)
 
@@ -12,18 +12,57 @@ data <- read.csv("task_usage-part-00001-of-00500.csv", header=TRUE)
 ## Pre-processing of data
 print("Data Cleaning up process......")
 Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389 , page_cache=data$X0.006645 , diskio_time=data$X7.629e.05 , cycle_inst=data$X2.911, 
-                   start_date=data$X5612000000)
+                   start_date=data$X5612000000, end_date=data$X5700000000)
 
 Data1 <- Data[1:30000,]
 Data1 = na.omit(Data1)
+Data1 = unplugg_sanitize(Data1)
+
+## Plot CPU and memory
+
+png('/Users/bikash/Dropbox/paper/anaomly detection/img/cpu_mem_utl.png', bg = "white")
+y.cpu = Data1$cpurate
+y.mem = Data1$memory_usage
+plot(NULL, xlim=c(0,28509), ylim=c(0,0.6), xlab="Time in seconds", ylab=""  )
+lines(y.cpu, lwd=2, col="red",  lty=6)
+#axis(1, at=1:28509)
+lines(y.mem, lwd=2, col="green", type="o",  lty=3 )
+legend("topleft",  legend=c("CPU", "Memory") , cex=0.8, col=c("red","green"), lty=c(6,3));
+dev.off()
 
 x = Data1
 library(RcppRoll)
 features0 <- tsmeasures(x[,c(1,2)], width = 24, window = 48)
 library(pcaPP)
-anomaly(x)
+x.cpu=data.frame(x=Data1$timestamp, y=Data1$cpurate)
+anomaly(x.cpu)
+
+biplot.features(x)
+
+
+
+
+#multivariate data with outliers
+library(mvtnorm)
+x <- rbind(rmvnorm(200, rep(0, 6), diag(c(5, rep(1,5)))),
+           rmvnorm( 15, c(0, rep(20, 5)), diag(rep(1, 6))))
+# Here we calculate the principal components with PCAgrid
+pc <- pcaPP::PcaProj(x, 6)
+# we could draw a biplot too:
+biplot(pc)
+
+# we could use another calculation method and another objective function, and 
+# maybe only calculate the first three principal components:
+pc <- PcaProj(x, 3, method="qn", CalcMethod="sphere")
+biplot(pc)
+
+# now we want to compare the results with the non-robust principal components
+pc <- PcaClassic(x)
+# again, a biplot for comparision:
+biplot(pc)
+
 # x: a matrix returned by `tsmeasures` function
-x = z
+#x = x$cpurate
 n = 10
 method = "hdr"
 robust = TRUE 
@@ -58,6 +97,7 @@ col="red"
   if (method == "hdr") {
     hdrinfo <- hdrcde::hdr.2d(x = scores[, 1], y = scores[, 2], 
                               kde.package = "ks")
+    hdrcde::hdr.den(scores[,1])
     tmp.idx <- order(hdrinfo$fxy)[1:n]
     main <- "Lowest densities on anomalies"
   }   
@@ -95,7 +135,9 @@ col="red"
 
 ## Helps to remove highly correlated dimensional from data
 # we first standardize the data:
-data.scaled <- data.frame( apply(Data1,2,scale) )
+x.cpu=data.frame(x=Data1$timestamp, y=Data1$cpurate)
+
+data.scaled <- data.frame( apply(x.cpu,2,scale) )
 library(corrplot)
 library(caret)
 corMatMy <- cor(data.scaled)
@@ -157,6 +199,8 @@ plotPCA <- function(x, nGroup) {
     lines(rangeY*2, c(0,0))
   }
 }
+Data1$timestamp <- NULL
+Data1$etimestamp <- NULL
 pca<-prcomp(na.omit(Data1), scale=TRUE)
 
 plotPCA(pca$x[,1:2], 3)

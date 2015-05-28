@@ -5,7 +5,7 @@ anomaly <- function(x, n = 10, method = "hdr", robust = TRUE,
   if (nc < n) {
     stop("Your n is too large.")
   }
-  x[is.infinite(x)] <- NA # ignore inf values
+  #x[is.infinite(x)] <- NA # ignore inf values
   naomit.x <- na.omit(x) # ignore missing values
   na.act <- na.action(naomit.x)
   if (is.null(na.act)) {

@@ -1,8 +1,28 @@
+#################################################################################################
+#################################################################################################
+## Author: Bikash Agrawal
+## Date: 12th May 2015
+## Email: er.bikash21@gmail.com
+## Description: Convert Time Series in to standard formart.
+##          
+## References: 
+## [1] http://dnene.bitbucket.org/docs/mlclass-notes/lecture16.html
+## [2] 
+## 
+#################################################################################################
+#################################################################################################
+
+#tsmeasures(Data1[,c(1,2)],width = 24, window = 48)
+
 tsmeasures <- function(y, normalise = TRUE, width, window) {
   # y: a multivariate time series
   # normalise: TRUE: scale data to be normally distributed
   # width: a window size for variance change and level shift, lumpiness
   # window: a window size for KLscore
+  y = Data1
+  width=24
+  window=48
+  normalise = TRUE
   y <- as.ts(y)
   tspy <- tsp(y)
   freq <- frequency(y)
@@ -34,7 +54,7 @@ tsmeasures <- function(y, normalise = TRUE, width, window) {
   measures$fspots <- apply(x, 2, Fspots)
   #  measures$mean <- colMeans(x, na.rm = TRUE)
   #  measures$var <- apply(x, 2, var, na.rm = TRUE)
-  varts <- apply(x, 2, VarTS, tspx = tspy)
+  varts <- apply(x[,c(1,8)], 2, VarTS, tspx = tspy)
   measures$trend <- sapply(varts, function(x) x$trend)
   measures$linearity <- sapply(varts, function(x) x$linearity)
   measures$curvature <- sapply(varts, function(x) x$curvature)
