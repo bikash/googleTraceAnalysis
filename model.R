@@ -58,7 +58,7 @@ ggplot_ADM(AnomalyDetection.rpca(ts.mem, autodiff=T))
 yahoo_data <- read.csv("/Users/bikash/repos/googleTraceAnalysis/real_1.csv", header=TRUE)
 ts.yahoo <- yahoo_data[1:210,2]
 
-features0 <- tsmeasures(dat0, width = 24, window = 48)
+features0 <- tsmeasures(yahoo_data, width = 24, window = 48)
 
 anomaly_yahoo = AnomalyDetection.rpca(ts.yahoo, autodiff=T)
 a <- abs(anomaly_yahoo$S_transform)
