@@ -13,28 +13,18 @@
 #################################################################################################
 
 #tsmeasures(Data1[,c(1,2)],width = 24, window = 48)
-
-tsmeasures <- function(y, normalise = TRUE, width, window) {
+tsmeasures <- function(y, normalise = TRUE, 
+                       width=ifelse(frequency(y)>1, frequency(y), 10), window=width) {
   # y: a multivariate time series
   # normalise: TRUE: scale data to be normally distributed
   # width: a window size for variance change and level shift, lumpiness
   # window: a window size for KLscore
-#   y = Data1
-#   width=24
-#   window=48
-#   normalise = TRUE
   y <- as.ts(y)
   tspy <- tsp(y)
   freq <- frequency(y)
-  if (missing(width)) {
-    width <- freq
-  }
-  if (width <= 1L) {
-    stop("width should be more than 1.")
-  }
-  if (missing(window)) {
-    window <- freq
-  }
+  if (width <= 1L | window <= 1L)
+    stop("window widths should be greater than 1.")
+  
   # Remove columns containing all NAs
   nay <- is.na(y)
   allna <- apply(nay, 2, all)
@@ -54,7 +44,7 @@ tsmeasures <- function(y, normalise = TRUE, width, window) {
   measures$fspots <- apply(x, 2, Fspots)
   #  measures$mean <- colMeans(x, na.rm = TRUE)
   #  measures$var <- apply(x, 2, var, na.rm = TRUE)
-  varts <- apply(x[,c(1,8)], 2, VarTS, tspx = tspy)
+  varts <- apply(x, 2, VarTS, tspx = tspy)
   measures$trend <- sapply(varts, function(x) x$trend)
   measures$linearity <- sapply(varts, function(x) x$linearity)
   measures$curvature <- sapply(varts, function(x) x$curvature)

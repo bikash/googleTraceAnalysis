@@ -12,7 +12,8 @@ data <- read.csv("task_usage-part-00001-of-00500.csv", header=TRUE)
 ## Pre-processing of data
 print("Data Cleaning up process......")
 Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389 , page_cache=data$X0.006645 , diskio_time=data$X7.629e.05 , cycle_inst=data$X2.911, 
-                   start_date=data$X5612000000, end_date=data$X5700000000)
+                   assg_memory_usage=data$X0.06946, max_memory_usage=data$X0.05408, start_date=data$X5612000000, 
+                   end_date=data$X5700000000)
 Data1 <- Data[1:30000,]
 Data1 = na.omit(Data1)
 Data1 = unplugg_sanitize(Data1)
@@ -25,6 +26,62 @@ source("/Users/bikash/repos/googleTraceAnalysis/R/multiplot.R")
 source("/Users/bikash/repos/googleTraceAnalysis/R/anomaly_detection_ma.R")
 
 ts.cpu <- Data1[1:350,1]
+
+
+p1 = ggplot_AnomalyDetection.ma(AnomalyDetection.ma(ts.cpu)) + theme_grey(base_size = 20)
+p2 = ggplot_AnomalyDetection.rpca(AnomalyDetection.rpca(ts.cpu, autodiff=F)) + theme_grey(base_size = 20)
+p3 = ggplot_AnomalyDetection.ma(AnomalyDetection.ma(c(0, diff(ts.cpu)))) + theme_grey(base_size = 20)
+p4 = ggplot_AnomalyDetection.rpca(AnomalyDetection.rpca(ts.cpu, autodiff=T)) + theme_grey(base_size = 20)
+multiplot(p1,p3,p2,p4,cols=2)
+
+
+ggplot_ADM = function(anomalyDetection, x_lable="time", y_lable="Value") {
+  ggplot(data=anomalyDetection, aes(time, X_original)) +
+    geom_line()+
+    theme(panel.background = element_rect(fill = 'white', colour = 'black')) +
+    geom_line(aes(y = X_transform), size = 0.5, color = "black", shape="X") +
+    geom_line(aes(y = L_transform), size = 0.5, color = "green", shape="L") +
+    geom_line(aes(y = E_transform), size = 0.5, color = "blue", shape="E") +
+    geom_point(data = subset(anomalyDetection, abs(S_transform) > 0), color = "red") +
+    scale_colour_manual( values = c("X_transform"="black", "L_transform"="green", 
+                                   "E_transform"="blue")) 
+}
+
+#pca <- AnomalyDetection.rpca(ts.cpu, autodiff=T)
+ggplot_ADM(AnomalyDetection.rpca(ts.cpu, autodiff=T))
+
+ts.mem <- Data1[1:350,2]
+ggplot_ADM(AnomalyDetection.rpca(ts.mem, autodiff=T))
+
+
+## yahoo dataset for accuracy test
+yahoo_data <- read.csv("/Users/bikash/repos/googleTraceAnalysis/real_1.csv", header=TRUE)
+ts.yahoo <- yahoo_data[1:210,2]
+
+features0 <- tsmeasures(dat0, width = 24, window = 48)
+
+anomaly_yahoo = AnomalyDetection.rpca(ts.yahoo, autodiff=T)
+a <- abs(anomaly_yahoo$S_transform)
+actual.ad.yahoo <- yahoo_data[1:210,3]
+ggplot_ADM(AnomalyDetection.rpca(ts.yahoo, autodiff=T))
+
+
+
+## plot memory graph
+
+png('/Users/bikash/Dropbox/paper/anaomly detection/img/cpu_mem_utl.png', bg = "white")
+
+y1 = Data1$memory_usage[1:700]
+y2 = Data1$assg_memory_usage[1:700]
+#y3 = Data1$max_memory_usage[1:700]
+
+plot(NULL, xlim=c(0,700), ylim=c(0,0.1), xlab="Time in seconds", ylab=""  )
+lines(y1, lwd=2, col="red", type = '1', lty=6)
+lines(y2, lwd=2, col="blue", type = '1', lty=3 )
+#lines(y3, lwd=2, col="blue",   lty=3 )
+legend("topleft",  legend=c("Memory Usage", "Assigned Memory") , cex=0.8, col=c("red","blue"), lty=c(6,3))
+dev.off()
+
 
 
 
