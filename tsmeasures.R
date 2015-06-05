@@ -19,10 +19,10 @@ tsmeasures <- function(y, normalise = TRUE, width, window) {
   # normalise: TRUE: scale data to be normally distributed
   # width: a window size for variance change and level shift, lumpiness
   # window: a window size for KLscore
-  y = Data1
-  width=24
-  window=48
-  normalise = TRUE
+#   y = Data1
+#   width=24
+#   window=48
+#   normalise = TRUE
   y <- as.ts(y)
   tspy <- tsp(y)
   freq <- frequency(y)
