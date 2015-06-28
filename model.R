@@ -18,6 +18,46 @@ Data1 <- Data[1:30000,]
 Data1 = na.omit(Data1)
 Data1 = unplugg_sanitize(Data1)
 
+
+## prediction to create label in anomaly
+## CPU usage prediction
+library(e1071) #For SVM prediction
+train.length=c(1:15000)
+y <- Data1$cpurate[train.length]
+x <- train.length
+y.actual <- Data1$cpurate[c(15001:30000)]
+x1 <- c(15001:30000)
+SVM <- svm(y ~ x, probability=TRUE)
+# predictions with 'probability=TRUE'
+pred <- predict(SVM, y1, probability=TRUE)
+
+## neural net for prediction
+library(caret) 
+data.train <- data.frame(x=x, y=y)
+my.grid <- expand.grid(.decay = c(0.5, 0.1), .size = c(5, 6, 7))
+nnet <- train(y ~ x, data = data.train, method = "nnet", maxit = 1000, tuneGrid = my.grid, trace = F, linout = 1) 
+#neuralnet(y~x,  data.train, hidden=10, threshold=0.01)
+pred <- predict(nnet, x1)
+y.actual=na.omit(y.actual)
+pred=na.omit(pred)
+rmse <- sqrt(mean((pred[c(1:13509)] - y.actual[c(1:13509)])^2))
+
+## plot for cpu usage
+png('/Users/bikash/Dropbox/paper/anaomly detection/img/prediction_cpu_mem_utl.png', bg = "white")
+
+y1 = y.actual[c(1:700)]
+y2 = pred[c(1:700)]
+plot(NULL, xlim=c(0,700), ylim=c(0,0.1), xlab="Time in seconds", ylab=""  )
+lines(y1, lwd=2, col="red", type="l" , lty=6)
+lines(y2, lwd=2, col="blue", type="l", lty=3 )
+#lines(y3, lwd=2, col="blue",   lty=3 )
+legend("topleft",  legend=c("Actual", "Prediction") , cex=0.8, col=c("red","blue"), lty=c(6,3))
+dev.off()
+
+
+
+
+
 ## Plot CPU and memory
 
 require(RAD)
@@ -25,7 +65,7 @@ require(ggplot2)
 source("/Users/bikash/repos/googleTraceAnalysis/R/multiplot.R")
 source("/Users/bikash/repos/googleTraceAnalysis/R/anomaly_detection_ma.R")
 
-ts.cpu <- Data1[1:350,1]
+ts.cpu <- y.actual[1:700]
 
 
 p1 = ggplot_AnomalyDetection.ma(AnomalyDetection.ma(ts.cpu)) + theme_grey(base_size = 20)
