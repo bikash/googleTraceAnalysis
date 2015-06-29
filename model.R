@@ -11,9 +11,9 @@ data <- read.csv("task_usage-part-00001-of-00500.csv", header=TRUE)
 
 ## Pre-processing of data
 print("Data Cleaning up process......")
-Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389 , page_cache=data$X0.006645 , diskio_time=data$X7.629e.05 , cycle_inst=data$X2.911, 
-                   assg_memory_usage=data$X0.06946, max_memory_usage=data$X0.05408, start_date=data$X5612000000, 
-                   end_date=data$X5700000000)
+Data <- data.frame(cpurate=data$X0.03143, memory_usage=data$X0.05389 , page_cache=data$X0.006645 , diskio_time=data$X7.629e.05,
+                   cycle_inst=data$X2.911, assg_memory_usage=data$X0.06946, max_memory_usage=data$X0.05408, 
+                   start_date=data$X5612000000, end_date=data$X5700000000)
 Data1 <- Data[1:30000,]
 Data1 = na.omit(Data1)
 Data1 = unplugg_sanitize(Data1)
