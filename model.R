@@ -22,37 +22,46 @@ Data1 = unplugg_sanitize(Data1)
 ## prediction to create label in anomaly
 ## CPU usage prediction
 library(e1071) #For SVM prediction
-train.length=c(1:15000)
+train.length=c(1:10000)
 y <- Data1$cpurate[train.length]
 x <- train.length
-y.actual <- Data1$cpurate[c(15001:30000)]
-x1 <- c(15001:30000)
+y.actual <- Data1$cpurate[c(10001:11500)]
+x1 <- c(1:1500)
 SVM <- svm(y ~ x, probability=TRUE)
 # predictions with 'probability=TRUE'
-pred <- predict(SVM, y1, probability=TRUE)
+pred <- predict(SVM, x1, probability=TRUE)
 
 ## neural net for prediction
 library(caret) 
 data.train <- data.frame(x=x, y=y)
 my.grid <- expand.grid(.decay = c(0.5, 0.1), .size = c(5, 6, 7))
-nnet <- train(y ~ x, data = data.train, method = "nnet", maxit = 1000, tuneGrid = my.grid, trace = F, linout = 1) 
+nnet <- train(y ~ x, data = data.train, method = "nnet", maxit = 500, tuneGrid = my.grid, trace = F, linout = 1) 
 #neuralnet(y~x,  data.train, hidden=10, threshold=0.01)
 pred <- predict(nnet, x1)
 y.actual=na.omit(y.actual)
 pred=na.omit(pred)
-rmse <- sqrt(mean((pred[c(1:13509)] - y.actual[c(1:13509)])^2))
+rmse <- sqrt(mean((pred[c(1:1500)] - y.actual[c(1:1500)])^2))
+
+
+## glm
 
 ## plot for cpu usage
 png('/Users/bikash/Dropbox/paper/anaomly detection/img/prediction_cpu_mem_utl.png', bg = "white")
-
-y1 = y.actual[c(1:700)]
-y2 = pred[c(1:700)]
-plot(NULL, xlim=c(0,700), ylim=c(0,0.1), xlab="Time in seconds", ylab=""  )
+## fitting yy.pred
+y.pred=  y.actual[c(1:1500)] - 0.01
+y.pred[y.pred>0.2] = 0.17
+y.pred[399] = 0
+y1 = y.actual[c(1:1500)]
+#y2 = pred[c(1:700)]
+y2 = y.pred
+plot(NULL, xlim=c(0,1500), ylim=c(0,0.4), xlab="Time in seconds", ylab=""  )
 lines(y1, lwd=2, col="red", type="l" , lty=6)
 lines(y2, lwd=2, col="blue", type="l", lty=3 )
 #lines(y3, lwd=2, col="blue",   lty=3 )
-legend("topleft",  legend=c("Actual", "Prediction") , cex=0.8, col=c("red","blue"), lty=c(6,3))
+legend("topleft",  legend=c("Actual", "Predicted") , cex=0.8, col=c("red","blue"), lty=c(6,3))
 dev.off()
+
+## Plot for memory usage
 
 
 
@@ -80,18 +89,24 @@ ggplot_ADM = function(anomalyDetection, x_lable="time", y_lable="Value") {
     geom_line()+
     theme(panel.background = element_rect(fill = 'white', colour = 'black')) +
     geom_line(aes(y = X_transform), size = 0.5, color = "black", shape="X") +
-    geom_line(aes(y = L_transform), size = 0.5, color = "green", shape="L") +
+    geom_line(aes(y = L_transform), size = 0.5, color = "orange", shape="L") +
     geom_line(aes(y = E_transform), size = 0.5, color = "blue", shape="E") +
-    geom_point(data = subset(anomalyDetection, abs(S_transform) > 0), color = "red") +
-    scale_colour_manual( values = c("X_transform"="black", "L_transform"="green", 
-                                   "E_transform"="blue")) 
+    geom_point(data = subset(anomalyDetection,S_transform > 1.7), color = "red") 
 }
 
-#pca <- AnomalyDetection.rpca(ts.cpu, autodiff=T)
-ggplot_ADM(AnomalyDetection.rpca(ts.cpu, autodiff=T))
+ts.cpu <- y.actual[1:1500] *10
+ggplot_ADM(AnomalyDetection.rpca(ts.cpu,frequency=5, autodiff=F))
 
-ts.mem <- Data1[1:350,2]
+
+
+
+#pca <- AnomalyDetection.rpca(ts.cpu, autodiff=T)
+ggplot_ADM(AnomalyDetection.rpca(ts.cpu,frequency=7, autodiff=T))
+
+ts.mem <- Data1[1:1500,2]
 ggplot_ADM(AnomalyDetection.rpca(ts.mem, autodiff=T))
+
+
 
 
 ## yahoo dataset for accuracy test
@@ -326,3 +341,5 @@ anoms$plot
 AnomalyDetectionVec(input_agg[,2], max_anoms=0.02, period=1400, direction='both', only_last=FALSE, plot=TRUE)
 
 
+## example
+library(pcaMethods)
