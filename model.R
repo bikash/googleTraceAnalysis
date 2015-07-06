@@ -91,7 +91,7 @@ ggplot_ADM = function(anomalyDetection, x_lable="time", y_lable="Value") {
     geom_line(aes(y = X_transform), size = 0.5, color = "black", shape="X") +
     geom_line(aes(y = L_transform), size = 0.5, color = "orange", shape="L") +
     geom_line(aes(y = E_transform), size = 0.5, color = "blue", shape="E") +
-    geom_point(data = subset(anomalyDetection,S_transform > 0.37), color = "red") 
+    geom_point(data = subset(anomalyDetection,abs(S_transform) > 0.13), color = "red") 
 }
 
 ts.cpu <- y.actual[1:1500] *10
@@ -110,8 +110,16 @@ ggplot_ADM(AnomalyDetection.rpca(ts.mem, frequency=5, autodiff=T))
 
 
 ## yahoo dataset for accuracy test
-yahoo_data <- read.csv("/Users/bikash/repos/googleTraceAnalysis/real_1.csv", header=TRUE)
-ts.yahoo <- yahoo_data[1:1400,2]
+yahoo_data <- read.csv("/Users/bikash/repos/googleTraceAnalysis/data_yahoo/ydata-labeled-time-series-anomalies-v1_0/A1Benchmark/real_3.csv", header=TRUE)
+yahoo_data$is_anomaly[yahoo_data$is_anomaly>0]
+ts.yahoo <- yahoo_data[1:1430,2]
+##
+rpca  =AnomalyDetection.rpca(ts.yahoo, frequency=10, autodiff=T)
+rpca$S_transform
+length(rpca$S_transform[abs(rpca$S_transform)>0.13])
+length(yahoo_data$is_anomaly[yahoo_data$is_anomaly>0])
+ggplot_ADM(AnomalyDetection.rpca(ts.yahoo, frequency=5, autodiff=T))
+
 
 features0 <- tsmeasures(yahoo_data, width = 24, window = 48)
 
@@ -119,7 +127,6 @@ anomaly_yahoo = AnomalyDetection.rpca(ts.yahoo, autodiff=T)
 a <- abs(anomaly_yahoo$S_transform)
 actual.ad.yahoo <- yahoo_data[1:1400,3]
 
-ggplot_ADM(AnomalyDetection.rpca(ts.yahoo, frequency=14, autodiff=T))
 
 ##hist(ts.cpu, nclass = 7, plot = FALSE)
 ts.cpu <- y.actual[1:1500] *10
