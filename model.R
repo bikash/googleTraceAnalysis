@@ -121,7 +121,14 @@ actual.ad.yahoo <- yahoo_data[1:1400,3]
 
 ggplot_ADM(AnomalyDetection.rpca(ts.yahoo, frequency=14, autodiff=T))
 
-
+##hist(ts.cpu, nclass = 7, plot = FALSE)
+ts.cpu <- y.actual[1:1500] *10
+h<-hist(ts.cpu, breaks=10, col="grey", xlab="cpu utilization", 
+        main="CPU utilization histogram") 
+xfit<-seq(min(ts.cpu),max(ts.cpu),length=40) 
+yfit<-dnorm(xfit,mean=mean(ts.cpu),sd=sd(ts.cpu)) 
+yfit <- yfit*diff(h$mids[1:2])*length(ts.cpu) 
+lines(xfit, yfit, col="blue", lwd=2)
 
 
 ## plot memory graph
