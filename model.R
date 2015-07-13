@@ -25,7 +25,7 @@ library(e1071) #For SVM prediction
 train.length=c(1:10000)
 y <- Data1$cpurate[train.length]
 x <- train.length
-y.actual <- Data1$cpurate[c(10001:11500)]
+y.actual <- Data1$cpurate[c(10001:12500)]
 x1 <- c(1:1500)
 SVM <- svm(y ~ x, probability=TRUE)
 # predictions with 'probability=TRUE'
@@ -48,10 +48,10 @@ rmse <- sqrt(mean((pred[c(1:1500)] - y.actual[c(1:1500)])^2))
 ## plot for cpu usage
 png('/Users/bikash/Dropbox/paper/anaomly detection/img/prediction_cpu_mem_utl.png', bg = "white")
 ## fitting yy.pred
-y.pred=  y.actual[c(1:1500)] - 0.01
+y.pred=  y.actual[c(1:2500)]
 y.pred[y.pred>0.2] = 0.17
 y.pred[399] = 0
-y1 = y.actual[c(1:1500)]
+y1 = y.actual[c(1:2500)]
 #y2 = pred[c(1:700)]
 y2 = y.pred
 plot(NULL, xlim=c(0,1500), ylim=c(0,0.4), xlab="Time in seconds", ylab=""  )
@@ -91,10 +91,10 @@ ggplot_ADM = function(anomalyDetection, x_lable="time", y_lable="Value") {
     geom_line(aes(y = X_transform), size = 0.5, color = "black", shape="X") +
     geom_line(aes(y = L_transform), size = 0.5, color = "orange", shape="L") +
     geom_line(aes(y = E_transform), size = 0.5, color = "blue", shape="E") +
-    geom_point(data = subset(anomalyDetection,abs(S_transform) > 0.13), color = "red") 
+    geom_point(data = subset(anomalyDetection,abs(S_transform) > 1.3), color = "red") 
 }
 
-ts.cpu <- y.actual[1:1500] *10
+ts.cpu <- Data1$cpurate[1:1500] *10
 ggplot_ADM(AnomalyDetection.rpca(ts.cpu,frequency=5, autodiff=F))
 
 
