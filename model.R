@@ -127,16 +127,16 @@ anomaly_yahoo = AnomalyDetection.rpca(ts.yahoo, autodiff=T)
 a <- abs(anomaly_yahoo$S_transform)
 actual.ad.yahoo <- yahoo_data[1:1400,3]
 
-
+## CPU histogram
+pdf(file='/Users/bikash/Dropbox/anaomly detection/cloudcom/unix_latex_template/img/hist_cpu.pdf')
 ##hist(ts.cpu, nclass = 7, plot = FALSE)
 ts.cpu <- y.actual[1:1500] *10
-h<-hist(ts.cpu, breaks=10, col="grey", xlab="cpu utilization", 
-        main="CPU utilization histogram") 
+h<-hist(ts.cpu, breaks=10, col="grey", xlab="CPU utilization", main="") 
 xfit<-seq(min(ts.cpu),max(ts.cpu),length=40) 
 yfit<-dnorm(xfit,mean=mean(ts.cpu),sd=sd(ts.cpu)) 
-yfit <- yfit*diff(h$mids[1:2])*length(ts.cpu) 
-lines(xfit, yfit, col="blue", lwd=2)
-
+yfit <- yfit*diff(h$mids[1:2])*length(ts.cpu)*2.5
+lines(xfit, yfit, col="red", lwd=2)
+dev.off()
 
 ## plot memory graph
 
