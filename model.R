@@ -85,7 +85,8 @@ multiplot(p1,p3,p2,p4,cols=2)
 
 
 ggplot_ADM = function(anomalyDetection, x_lable="time", y_lable="Value") {
-  ggplot(data=anomalyDetection, aes(time, X_original)) +
+  colnames(anomalyDetection) <- c("X_transform","L_transform","S_transform", "E_transform", "Utilization","time","name")
+  ggplot(data=anomalyDetection, aes(time, Utilization)) +
     geom_line()+
     theme(panel.background = element_rect(fill = 'white', colour = 'black')) +
     geom_line(aes(y = X_transform), size = 0.5, color = "black", shape="X") +
@@ -94,8 +95,26 @@ ggplot_ADM = function(anomalyDetection, x_lable="time", y_lable="Value") {
     geom_point(data = subset(anomalyDetection,abs(S_transform) > 1.3), color = "red") 
 }
 
-ts.cpu <- Data1$cpurate[1:1500] *10
-ggplot_ADM(AnomalyDetection.rpca(ts.cpu,frequency=5, autodiff=F))
+
+noise.norm <- runif(1500) -0.2
+
+ts.cpu <- Data1$cpurate[1:1500] +0.001 
+ggplot_ADM(AnomalyDetection.rpca(ts.cpu,frequency=15, autodiff=F))
+
+ggplot_ADM = function(anomalyDetection, x_lable="time", y_lable="Value") {
+  cols <- c("LINE1"="black","LINE2"="orange","LINE3"="blue")
+  colnames(anomalyDetection) <- c("X_transform","L_transform","S_transform", "E_transform", "Utilization","time","name")
+  ggplot(data=anomalyDetection, aes(time, Utilization)) +
+  geom_line()+
+  geom_line(aes(y = X_transform), size = 0.5, colour = "black") +
+  geom_line(aes(y = L_transform), size = 0.5, colour = "orange") +
+  geom_line(aes(y = E_transform), size = 0.5, colour = "blue") +
+  ylab("Utilization") +
+  geom_point(data = subset(anomalyDetection,abs(S_transform) > 0.13), color = "red") +
+  theme(panel.background = element_rect(fill = 'white', colour = 'black')) 
+}
+
+#scale_colour_manual(name="",values=cols, labels = c('X = Original data','E = Noise','L = Low rank signal')) + 
 
 
 
@@ -103,8 +122,8 @@ ggplot_ADM(AnomalyDetection.rpca(ts.cpu,frequency=5, autodiff=F))
 #pca <- AnomalyDetection.rpca(ts.cpu, autodiff=T)
 #ggplot_ADM(AnomalyDetection.rpca(ts.cpu,frequency=7, autodiff=T))
 
-ts.mem <- Data1[1:1500,2]
-ggplot_ADM(AnomalyDetection.rpca(ts.mem, frequency=5, autodiff=T))
+ts.mem <- Data1[1:1500,2] + 0.0001
+ggplot_ADM(AnomalyDetection.rpca(ts.mem, frequency=15, autodiff=T))
 
 
 
@@ -118,7 +137,7 @@ rpca  =AnomalyDetection.rpca(ts.yahoo, frequency=10, autodiff=T)
 rpca$S_transform
 length(rpca$S_transform[abs(rpca$S_transform)>0.13])
 length(yahoo_data$is_anomaly[yahoo_data$is_anomaly>0])
-ggplot_ADM(AnomalyDetection.rpca(ts.yahoo, frequency=5, autodiff=T))
+ggplot_ADM(AnomalyDetection.rpca(ts.yahoo, frequency=10, autodiff=F))
 
 
 features0 <- tsmeasures(yahoo_data, width = 24, window = 48)
